@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sosmed Scheduler — Schedule Your Social Media</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --border: #1e1e2e;
+      --accent: #ff4d6d;
+      --accent2: #7c3aed;
+      --text: #f0f0f5;
+      --muted: #6b6b80;
+      --card: #16161f;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,77,109,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,77,109,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Glow blobs */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.15;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .blob-1 { width: 600px; height: 600px; background: var(--accent); top: -200px; right: -200px; }
+    .blob-2 { width: 500px; height: 500px; background: var(--accent2); bottom: -100px; left: -150px; }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 2.5rem;
+      background: rgba(10,10,15,0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.2rem;
+      letter-spacing: -0.02em;
+    }
+    .logo span { color: var(--accent); }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    nav a:hover { color: var(--text); }
+
+    .nav-links { display: flex; gap: 2rem; align-items: center; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.4rem;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      border: none;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    .btn-primary:hover { background: #e03558; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(255,77,109,0.3); }
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 4rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 1rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,77,109,0.3);
+      background: rgba(255,77,109,0.08);
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-bottom: 2rem;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      max-width: 800px;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+
+    h1 .highlight {
+      background: linear-gradient(135deg, var(--accent), #ff8fa3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      margin-top: 1.5rem;
+      font-size: 1.15rem;
+      color: var(--muted);
+      max-width: 520px;
+      line-height: 1.7;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+
+    .hero-actions {
+      margin-top: 2.5rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeUp 0.6s 0.3s ease both;
+    }
+
+    .btn-tiktok {
+      background: #000;
+      color: white;
+      border: 1px solid #333;
+      padding: 0.75rem 1.8rem;
+      font-size: 1rem;
+    }
+    .btn-tiktok:hover { background: #111; border-color: #555; transform: translateY(-1px); }
+
+    /* DASHBOARD MOCKUP */
+    .mockup-wrap {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 900px;
+      margin: 4rem auto 0;
+      padding: 0 2rem;
+      animation: fadeUp 0.8s 0.4s ease both;
+    }
+
+    .mockup {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+    }
+
+    .mockup-bar {
+      background: var(--card);
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #febc2e; }
+    .dot-g { background: #28c840; }
+
+    .mockup-url {
+      flex: 1;
+      background: var(--border);
+      border-radius: 6px;
+      padding: 0.3rem 0.8rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-left: 0.5rem;
+    }
+
+    .mockup-body {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      min-height: 380px;
+    }
+
+    .mockup-sidebar {
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 1rem;
+    }
+
+    .sidebar-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+      padding: 0 0.5rem;
+    }
+    .sidebar-logo span { color: var(--accent); }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.6rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+      cursor: pointer;
+    }
+    .sidebar-item.active {
+      background: rgba(255,77,109,0.1);
+      color: var(--accent);
+    }
+    .sidebar-item .icon { font-size: 1rem; }
+
+    .mockup-main { padding: 1.5rem; }
+
+    .mockup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .mockup-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .posts-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+
+    .post-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.9rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .post-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .post-card.tiktok::before { background: linear-gradient(90deg, #010101, #69C9D0); }
+    .post-card.scheduled::before { background: linear-gradient(90deg, var(--accent2), #a78bfa); }
+    .post-card.draft::before { background: var(--border); }
+
+    .post-platform {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .post-thumb {
+      width: 100%;
+      height: 60px;
+      background: var(--border);
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .post-meta {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 500;
+      margin-top: 0.4rem;
+    }
+    .status-scheduled { background: rgba(124,58,237,0.15); color: #a78bfa; }
+    .status-published { background: rgba(40,200,64,0.15); color: #4ade80; }
+    .status-draft { background: rgba(107,107,128,0.15); color: var(--muted); }
+
+    /* FEATURES */
+    .section {
+      position: relative;
+      z-index: 1;
+      padding: 6rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      max-width: 500px;
+      margin-bottom: 3rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.75rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .feature-card:hover { border-color: rgba(255,77,109,0.3); transform: translateY(-3px); }
+
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      background: rgba(255,77,109,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      margin-bottom: 1.1rem;
+    }
+
+    .feature-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-desc {
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    /* PLATFORMS */
+    .platforms {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+
+    .platform-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* CTA */
+    .cta-section {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 6rem 2rem;
+    }
+
+    .cta-box {
+      max-width: 600px;
+      margin: 0 auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3.5rem 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-box::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+
+    .cta-box h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 2rem;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+    }
+
+    .cta-box p {
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 2rem;
+    }
+
+    /* FOOTER */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 2rem 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      color: var(--muted);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+
+    .footer-links { display: flex; gap: 1.5rem; }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* LOGIN MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .modal h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.4rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal p { color: var(--muted); font-size: 0.9rem; margin-bottom: 2rem; line-height: 1.6; }
+
+    .tiktok-connect-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 0.9rem;
+      background: #fff;
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: background 0.2s;
+      margin-bottom: 1rem;
+    }
+    .tiktok-connect-btn:hover { background: #f0f0f0; }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .modal-close:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Sosmed<span>.</span>Scheduler</div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#platforms">Platforms</a>
+    <button class="btn btn-primary" onclick="document.querySelector('.modal-overlay').classList.add('show')">
+      Get Started
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="badge">Social Media Automation Tool</div>
+  <h1>Schedule your content,<br/><span class="highlight">grow your presence</span></h1>
+  <p class="hero-sub">One dashboard to schedule, publish, and manage your social media content across TikTok and more — automatically.</p>
+  <div class="hero-actions">
+    <button class="btn btn-primary" style="font-size:1rem;padding:0.8rem 2rem" onclick="document.querySelector('.modal-overlay').classList.add('show')">
+      Connect TikTok Account
+    </button>
+    <a href="#features" class="btn btn-outline" style="font-size:1rem;padding:0.8rem 2rem">See how it works</a>
+  </div>
+
+  <!-- MOCKUP -->
+  <div class="mockup-wrap">
+    <div class="mockup">
+      <div class="mockup-bar">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+        <div class="mockup-url">app.sosmed-scheduler.com/dashboard</div>
+      </div>
+      <div class="mockup-body">
+        <div class="mockup-sidebar">
+          <div class="sidebar-logo">Sosmed<span>.</span></div>
+          <div class="sidebar-item active"><span class="icon">📅</span> Schedule</div>
+          <div class="sidebar-item"><span class="icon">📊</span> Analytics</div>
+          <div class="sidebar-item"><span class="icon">🔗</span> Accounts</div>
+          <div class="sidebar-item"><span class="icon">⚙️</span> Settings</div>
+        </div>
+        <div class="mockup-main">
+          <div class="mockup-header">
+            <div class="mockup-title">Scheduled Posts</div>
+            <button class="btn btn-primary" style="font-size:0.78rem;padding:0.4rem 1rem">+ New Post</button>
+          </div>
+          <div class="posts-grid">
+            <div class="post-card tiktok">
+              <div class="post-platform">🎵 TikTok</div>
+              <div class="post-thumb">🎬</div>
+              <div class="post-meta">Today, 3:00 PM</div>
+              <div class="status-badge status-scheduled">Scheduled</div>
+            </div>
+            <div class="post-card tiktok">
+              <div class="post-platform">🎵 TikTok</div>
+              <div class="post-thumb">📸</div>
+              <div class="post-meta">Tomorrow, 9:00 AM</div>
+              <div class="status-badge status-published">Published</div>
+            </div>
+            <div class="post-card draft">
+              <div class="post-platform">🎵 TikTok</div>
+              <div class="post-thumb">✏️</div>
+              <div class="post-meta">Not scheduled</div>
+              <div class="status-badge status-draft">Draft</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="section-label">Features</div>
+  <div class="section-title">Everything you need to stay consistent</div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">📅</div>
+      <div class="feature-title">Smart Scheduling</div>
+      <div class="feature-desc">Schedule your posts in advance and let Sosmed Scheduler publish them automatically at the perfect time.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎵</div>
+      <div class="feature-title">TikTok Integration</div>
+      <div class="feature-desc">Connect your TikTok account securely via official TikTok API and publish videos directly to your profile.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">Content Calendar</div>
+      <div class="feature-desc">Visualize all your upcoming posts in a clean calendar view. Never miss a posting day again.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-title">Bulk Upload</div>
+      <div class="feature-desc">Upload multiple videos at once and schedule them all in a single workflow. Save hours every week.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔐</div>
+      <div class="feature-title">Secure OAuth</div>
+      <div class="feature-desc">Your credentials are never stored. We use official OAuth 2.0 to connect your social media accounts safely.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📱</div>
+      <div class="feature-title">Multi-Account</div>
+      <div class="feature-desc">Manage multiple TikTok accounts from one dashboard. Perfect for creators and social media managers.</div>
+    </div>
+  </div>
+</section>
+
+<!-- PLATFORMS -->
+<section class="section" id="platforms" style="padding-top:0">
+  <div class="section-label">Platforms</div>
+  <div class="section-title">Works with your favorite platforms</div>
+  <div class="platforms">
+    <div class="platform-pill">🎵 TikTok</div>
+    <div class="platform-pill">📸 Instagram <span style="font-size:0.7rem;color:#6b6b80;margin-left:0.25rem">(coming soon)</span></div>
+    <div class="platform-pill">▶️ YouTube <span style="font-size:0.7rem;color:#6b6b80;margin-left:0.25rem">(coming soon)</span></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-box">
+    <h2>Start scheduling today</h2>
+    <p>Connect your TikTok account and start scheduling your content in minutes. Free to get started.</p>
+    <button class="btn btn-primary" style="font-size:1rem;padding:0.85rem 2.2rem;width:100%;justify-content:center;margin-bottom:1rem" onclick="document.querySelector('.modal-overlay').classList.add('show')">
+      Connect TikTok Account
+    </button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo" style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem">Sosmed<span style="color:var(--accent)">.</span>Scheduler</div>
+  <div class="footer-links">
+    <a href="https://koranindie-eng.github.io/sosmed-scheduler/privacy-policy">Privacy Policy</a>
+    <a href="https://koranindie-eng.github.io/sosmed-scheduler/terms-of-service">Terms of Service</a>
+  </div>
+  <div>© 2026 Sosmed Scheduler. All rights reserved.</div>
+</footer>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="modal">
+    <h3>Connect your account</h3>
+    <p>Sign in with your TikTok account to start scheduling your content.</p>
+    <button class="tiktok-connect-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.73a4.85 4.85 0 01-1.01-.04z" fill="#000"/>
+      </svg>
+      Continue with TikTok
+    </button>
+    <button class="modal-close" onclick="document.querySelector('.modal-overlay').classList.remove('show')">Cancel</button>
+  </div>
+</div>
+
+</body>
+</html>
